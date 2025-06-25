@@ -1,42 +1,46 @@
-// 生成した Prisma Client をインポートする。場所は schema.prisma の output 設定で決まる。
+import express from "express";
+// 生成した Prisma Client をインポート
 import { PrismaClient } from "./generated/prisma/client";
-
-// PrismaClient のインスタンスを作成する
 const prisma = new PrismaClient({
-  // 実行されたクエリをコンソールにログとして表示する設定
+  // クエリが実行されたときに実際に実行したクエリをログに表示する設定
   log: ["query"],
 });
+const app = express();
 
-// データベース操作を行うメインの非同期関数
-async function main() {
-  console.log("Prisma Client を初期化しました。");
+// 環境変数が設定されていれば、そこからポート番号を取得する。環境変数に設定がなければ 8888 を使用する。
+const PORT = process.env.PORT || 8888;
 
-  // 既存の全ユーザーを取得して表示する
-  let users = await prisma.user.findMany();
-  console.log("Before ユーザー一覧:", users);
+// EJS をテンプレートエンジンとして設定する
+app.set("view engine", "ejs");
+// EJS のテンプレートファイルが置かれているディレクトリを指定する
+app.set("views", "./views");
 
-  // 新しいユーザーを追加する
-  const newUser = await prisma.user.create({
-    data: {
-      name: `新しいユーザー ${new Date().toISOString()}`,
-    },
-  });
-  console.log("新しいユーザーを追加しました:", newUser);
+// フォームから送信されたデータ (urlencoded) を受け取れるように設定する
+app.use(express.urlencoded({ extended: true }));
 
-  // もう一度、全ユーザーを取得して表示する
-  users = await prisma.user.findMany();
-  console.log("After ユーザー一覧:", users);
-}
+// ルートパス ("/") にGETリクエストが来たときの処理
+app.get("/", async (req, res) => {
+  // データベースからすべてのユーザーを取得する
+  const users = await prisma.user.findMany();
+  // 'index.ejs' テンプレートを使い、'users'という名前でデータを渡してHTMLを生成し、応答する
+  res.render("index", { users });
+});
 
-// main 関数を実行する
-main()
-  .catch((e) => {
-    // エラーが発生した場合は、エラーメッセージを表示する
-    console.error(e);
-    process.exit(1);
-  })
-  .finally(async () => {
-    // 処理が正常に終了しても、エラーで終了しても、必ず最後にデータベース接続を切断する
-    await prisma.$disconnect();
-    console.log("Prisma Client を切断しました。");
-  });
+// "/users" にPOSTリクエストが来たときの処理 (ユーザー追加フォームからの送信)
+app.post("/users", async (req, res) => {
+  const name = req.body.name; // フォームから送信された'name'の値を取得
+  if (name) {
+    // 取得した名前で新しいユーザーをデータベースに作成する
+    const newUser = await prisma.user.create({
+      data: { name },
+    });
+    console.log("新しいユーザーを追加しました:", newUser);
+  }
+  // 処理が終わったら、ルートパス ("/") にリダイレクトする (一覧ページを再表示)
+  res.redirect("/");
+});
+
+// サーバーを指定したポートで起動する
+app.listen(PORT, () => {
+  console.log(`Server is running on http://localhost:${PORT}`);
+});
