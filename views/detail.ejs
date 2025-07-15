@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <title><%= term.name %> | 株用語集</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        line-height: 1.6;
+      }
+      .container {
+        max-width: 800px;
+        margin: 2em auto;
+      }
+      .term-description {
+        white-space: pre-wrap;
+        background: #f9f9f9;
+        padding: 1em;
+        border-radius: 8px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1><%= term.name %></h1>
+      <p class="term-description"><%= term.description %></p>
+      <hr />
+      <a href="/">← 一覧に戻る</a>
+    </div>
+  </body>
+</html>

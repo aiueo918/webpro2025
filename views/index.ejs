@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <title>株用語集</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        line-height: 1.6;
+      }
+      form {
+        background: #f4f4f4;
+        padding: 1em;
+        border-radius: 8px;
+      }
+      input,
+      textarea {
+        width: 95%;
+        padding: 8px;
+        margin-bottom: 10px;
+      }
+      button {
+        padding: 10px 15px;
+        background: #007bff;
+        color: white;
+        border: none;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>株用語集</h1>
+
+    <h2>新しい用語を登録する</h2>
+    <form action="/terms" method="post">
+      <div>
+        <label for="name">用語名:</label>
+        <input type="text" id="name" name="name" required />
+      </div>
+      <div>
+        <label for="description">説明文:</label>
+        <textarea
+          id="description"
+          name="description"
+          rows="4"
+          required
+        ></textarea>
+      </div>
+      <button type="submit">登録する</button>
+    </form>
+
+    <h2>登録済み用語一覧</h2>
+    <ul>
+      <% terms.forEach(term => { %>
+      <li>
+        <a href="/term/<%= term.id %>"><%= term.name %></a>
+      </li>
+      <% }) %>
+    </ul>
+  </body>
+</html>
